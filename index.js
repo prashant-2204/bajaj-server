@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const multer = require('multer');
 const mime = require('mime-types');
 const cors = require('cors');
  
@@ -36,30 +35,31 @@ app.post('/bfhl', (req, res) => {
     let fileMimeType = '';
     let fileSizeKB = 0;
 
-    if (file_b64) {
-        try {
-            const fileBuffer = Buffer.from(file_b64, 'base64');
-            fileValid = true;
-            fileMimeType = mime.lookup(fileBuffer);
-            fileSizeKB = (fileBuffer.length / 1024).toFixed(2); // KB
-        } catch (err) {
-            fileValid = false;
-        }
-    }
-    else{
-      res.json({
-        is_success: true,
-        user_id: "suraj diwedi",  // Hardcoded as per example
-        email: "sd4043@srnist.edu.in",
-        roll_number: "RA2111004010440",
-        numbers: numbers,
-        alphabets: alphabets,
-        highest_lowercase_alphabet: [highestLowercase],
-        fileValid:false
-    });
+    if (!file_b64) {
+        // If file_b64 is missing, send response immediately
+        return res.json({
+            is_success: true,
+            user_id: "suraj diwedi",  // Hardcoded as per example
+            email: "sd4043@srnist.edu.in",
+            roll_number: "RA2111004010440",
+            numbers: numbers,
+            alphabets: alphabets,
+            highest_lowercase_alphabet: [highestLowercase],
+            file_valid: false // Indicating no file provided
+        });
     }
 
-    // Response
+    // If file_b64 is present, process it
+    try {
+        const fileBuffer = Buffer.from(file_b64, 'base64');
+        fileValid = true;
+        fileMimeType = mime.lookup(fileBuffer);
+        fileSizeKB = (fileBuffer.length / 1024).toFixed(2); // Convert size to KB
+    } catch (err) {
+        fileValid = false; // In case of error during Base64 decoding
+    }
+
+    // Final response with file details
     res.json({
         is_success: true,
         user_id: "suraj diwedi",  // Hardcoded as per example
